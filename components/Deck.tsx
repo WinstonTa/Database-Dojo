@@ -11,9 +11,15 @@ function clamp(n: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, n));
 }
 
-export function Deck({ slides }: { slides: Slide[] }) {
+export function Deck({
+  slides,
+  initialIndex = 0,
+}: {
+  slides: Slide[];
+  initialIndex?: number;
+}) {
   const total = slides.length;
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const [outlineOpen, setOutlineOpen] = useState(false);
   const [ready, setReady] = useState(false);
