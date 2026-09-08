@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/*
+  Database Dojo — "drafting table" visual system.
+  Light-primary (study comfort), with a cool drafting-paper ground, ink-blue
+  accent, and an amber highlight reserved for derived / revealed material.
+  Every diagram lives on a dot-grid field, echoing drafting film / graph paper.
+*/
+
+@theme {
+  --font-display: var(--font-archivo), "Archivo", system-ui, sans-serif;
+  --font-body: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --color-paper: #f3f4f1;
+  --color-panel: #fbfcfa;
+  --color-ink: #1b1c1a;
+  --color-graphite: #57564f;
+  --color-rule: #d9d7cc;
+  --color-rule-strong: #bdbaa9;
+  --color-accent: #24446c;
+  --color-accent-soft: #e5ebf1;
+  --color-highlight: #a4691c;
+  --color-highlight-soft: #f2e7d4;
+  --color-flaw: #a2402f;
+  --color-flaw-soft: #f0dcd7;
+}
+
+:root {
+  --paper: var(--color-paper);
+  --panel: var(--color-panel);
+  --ink: var(--color-ink);
+  --graphite: var(--color-graphite);
+  --rule: var(--color-rule);
+  --rule-strong: var(--color-rule-strong);
+  --accent: var(--color-accent);
+  --accent-soft: var(--color-accent-soft);
+  --highlight: var(--color-highlight);
+  --highlight-soft: var(--color-highlight-soft);
+  --flaw: var(--color-flaw);
+  --flaw-soft: var(--color-flaw-soft);
+  --grid-dot: #cdccc0;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #16171a;
+    --panel: #1e2024;
+    --ink: #ecebe4;
+    --graphite: #a3a199;
+    --rule: #34363c;
+    --rule-strong: #4a4d54;
+    --accent: #8fb4e0;
+    --accent-soft: #23303f;
+    --highlight: #d69f56;
+    --highlight-soft: #33291a;
+    --flaw: #d9846f;
+    --flaw-soft: #3a2622;
+    --grid-dot: #33353b;
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Drafting-film dot grid used behind every diagram. */
+.dot-grid {
+  background-image: radial-gradient(var(--grid-dot) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-position: center;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
