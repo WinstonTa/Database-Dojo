@@ -37,11 +37,11 @@ export function ModelsOverview() {
           key={e.code}
           className="flex items-start gap-3 border border-[var(--rule)] bg-[var(--panel)] p-3"
         >
-          <span className="mono mt-0.5 min-w-[3rem] shrink-0 border-r border-[var(--rule)] pr-3 text-[0.7rem] font-600 tracking-[0.12em] text-[var(--accent)]">
+          <span className="mono mt-0.5 min-w-[3rem] shrink-0 border-r border-[var(--rule)] pr-3 text-[0.7rem] font-semibold tracking-[0.12em] text-[var(--accent)]">
             {e.code}
           </span>
           <span className="flex flex-col">
-            <span className="font-display text-[0.95rem] font-600 leading-tight text-[var(--ink)]">
+            <span className="font-display text-[0.95rem] font-semibold leading-tight text-[var(--ink)]">
               {e.name}
             </span>
             <span className="text-[0.85rem] leading-snug text-[var(--graphite)]">

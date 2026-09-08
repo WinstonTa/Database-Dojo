@@ -150,7 +150,7 @@ export function Deck({ slides }: { slides: Slide[] }) {
           </button>
           <Link
             href="/"
-            className="font-display text-[0.95rem] font-600 !text-[var(--ink)] no-underline"
+            className="font-display text-[0.95rem] font-semibold !text-[var(--ink)] no-underline"
           >
             Database Dojo
           </Link>
