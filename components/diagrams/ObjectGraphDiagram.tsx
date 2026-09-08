@@ -1,8 +1,8 @@
 import type { DiagramAccent, ObjectGraphSpec, ObjectNode } from "@/lib/types";
 import { borderPoint, midpoint, rect, type Rect } from "./geometry";
 
-const COL_W = 176;
-const ROW_GAP = 64;
+const COL_W = 210;
+const ROW_GAP = 74;
 const MARGIN = 16;
 const HEADER_H = 26;
 const LINE_H = 15;
@@ -94,22 +94,41 @@ export function ObjectGraphDiagram({ spec }: { spec: ObjectGraphSpec }) {
     rowY[r] = cursor;
     cursor += rowHeights[r] + ROW_GAP;
   }
-  const width = spec.cols * COL_W + MARGIN * 2;
-  const height = cursor - ROW_GAP + MARGIN;
 
   const rects = new Map<string, Rect>();
   spec.nodes.forEach((n) => {
-    const x = MARGIN + n.col * COL_W + 12;
-    const w = (n.span ?? 1) * COL_W - 24;
+    const w = Math.max(
+      110,
+      n.label.length * 6.4 + 16,
+      ...(n.lines ?? []).map((l) => l.length * 5.6 + 18),
+    );
+    const spanW = (n.span ?? 1) * COL_W;
+    const x = MARGIN + n.col * COL_W + (spanW - w) / 2;
     const h = nodeHeight(n);
     const y = rowY[n.row] + (rowHeights[n.row] - h) / 2;
     rects.set(n.id, rect(x, y, w, h));
   });
 
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  rects.forEach((r) => {
+    minX = Math.min(minX, r.x);
+    minY = Math.min(minY, r.y);
+    maxX = Math.max(maxX, r.x + r.w);
+    maxY = Math.max(maxY, r.y + r.h);
+  });
+  const vbW = maxX - minX + 16;
+  const vbH = maxY - minY + 16;
+  const vb = `${minX - 8} ${minY - 8} ${vbW} ${vbH}`;
+
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className="h-auto w-full"
+      viewBox={vb}
+      width={vbW}
+      height={vbH}
+      className="mx-auto block h-auto max-h-[56vh] w-auto max-w-full"
       role="img"
       aria-hidden="true"
     >

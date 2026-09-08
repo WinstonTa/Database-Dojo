@@ -105,10 +105,10 @@ export function ClassModelDiagram({ spec }: { spec: ClassModelSpec }) {
   });
 
   const bounds: Bounds = {
-    minX: 0,
-    minY: 0,
-    maxX: MARGIN + spec.cols * COL_W,
-    maxY: cursor - ROW_GAP + MARGIN,
+    minX: Infinity,
+    minY: Infinity,
+    maxX: -Infinity,
+    maxY: -Infinity,
   };
   spec.entities.forEach((e) => grow(bounds, rects.get(e.id)!));
 
@@ -154,8 +154,9 @@ export function ClassModelDiagram({ spec }: { spec: ClassModelSpec }) {
   return (
     <svg
       viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
-      className="mx-auto h-auto w-full max-w-full"
-      style={{ maxHeight: "62vh" }}
+      width={vbW}
+      height={vbH}
+      className="mx-auto block h-auto max-h-[56vh] w-auto max-w-full"
       role="img"
       aria-hidden="true"
     >
