@@ -1,0 +1,1 @@
+export default function App() { return <main style={{background:'#0b1220',color:'#f6f8fb',minHeight:'100vh',padding:'4rem',fontFamily:'system-ui'}}><h1>Database Dojo</h1><p>Interactive SQL learning lab — curriculum and PostgreSQL engine are being wired in.</p></main> }
