@@ -1,8 +1,8 @@
 import fs from 'node:fs'
 const log = fs.readFileSync(process.argv[2], 'utf8')
 const lines = log.split('\n').map(x => x.trim()).filter(Boolean)
-const error = lines.find(x => /SQL challenge failed:|Lesson SQL failed:|Lecture walkthrough SQL failed:/i.test(x))
-  ?? lines.find(x => /Error:|AssertionError|SyntaxError|TypeError/i.test(x))
+const error = lines.find(x => /^Error: (SQL challenge failed:|Lesson SQL failed:|Lecture walkthrough SQL failed:)/i.test(x))
+  ?? lines.find(x => /^(Error:|AssertionError|SyntaxError|TypeError)/i.test(x))
   ?? lines.at(-1)
 const description = (error ?? 'SQL smoke test failed').slice(0, 135)
 console.error('CI diagnostic:', description)
