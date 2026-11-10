@@ -1,0 +1,173 @@
+[
+  {
+    "id": "sql-foundations",
+    "unit": "01",
+    "title": "Speak SQL",
+    "subtitle": "SELECT, FROM, and the shape of a result",
+    "category": "Foundations",
+    "duration": 8,
+    "slideRange": "28–123",
+    "description": "SQL builds a result table from a source relation. Start by asking what one row represents.",
+    "bullets": [
+      "SELECT chooses expressions and output columns; FROM determines the source rows.",
+      "PostgreSQL folds unquoted identifiers to lowercase. The lesson's orderNumber and ordernumber refer to the same unquoted identifier.",
+      "A projection can drop the key. DISTINCT removes duplicate output rows, not errors in your logic."
+    ],
+    "query": "SELECT customernumber, customername, country\\nFROM customers\\nORDER BY customername;",
+    "challengeIds": [
+      "select-country",
+      "distinct-countries"
+    ],
+    "concept": "One row from customers is one customer. The primary key is customernumber."
+  },
+  {
+    "id": "filter-order",
+    "unit": "02",
+    "title": "Filter & Sort",
+    "subtitle": "WHERE, ORDER BY, FETCH FIRST",
+    "category": "Foundations",
+    "duration": 10,
+    "slideRange": "28–123",
+    "description": "Filter individual source rows before aggregation. Sort only after the result is computed.",
+    "bullets": [
+      "WHERE selects individual rows using predicates such as >, AND, IN and IS NULL.",
+      "ORDER BY specifies display order; SQL results have no guaranteed order without it.",
+      "FETCH FIRST limits the final result, while WITH TIES includes rows equal on every ORDER BY expression."
+    ],
+    "query": "SELECT ordernumber, orderdate\\nFROM orders\\nWHERE orderdate >= DATE '2024-01-01'\\nORDER BY orderdate DESC;",
+    "challengeIds": [
+      "orders-2024",
+      "countries-count"
+    ],
+    "concept": "Think: FROM → WHERE → SELECT → ORDER BY → FETCH."
+  },
+  {
+    "id": "joins",
+    "unit": "03",
+    "title": "Build Joins",
+    "subtitle": "INNER JOIN, LEFT JOIN, and keys",
+    "category": "Joins",
+    "duration": 14,
+    "slideRange": "28–123",
+    "description": "Understand the identity of each intermediate joined row before projecting.",
+    "bullets": [
+      "An order joined to its customer still produces one row per order.",
+      "An order joined to orderdetails produces one row per order line (ordernumber, productcode).",
+      "Joining two independent one-to-many children can multiply rows; LEFT JOIN keeps unmatched left rows."
+    ],
+    "query": "SELECT o.ordernumber, c.customername\\nFROM orders o\\nINNER JOIN customers c USING (customernumber)\\nORDER BY o.ordernumber;",
+    "challengeIds": [
+      "order-customers",
+      "never-ordered"
+    ],
+    "concept": "Key question: what real-world thing does one joined row represent?"
+  },
+  {
+    "id": "aggregate",
+    "unit": "04",
+    "title": "Count What Matters",
+    "subtitle": "COUNT, SUM, AVG, MIN and MAX",
+    "category": "Aggregation",
+    "duration": 12,
+    "slideRange": "28–123",
+    "description": "Aggregate functions operate on input rows. A wrong join can silently inflate SUM or COUNT.",
+    "bullets": [
+      "COUNT(*) counts rows; COUNT(column) counts non-NULL values; COUNT(DISTINCT column) counts distinct non-NULL values.",
+      "SUM and AVG aggregate numeric expressions; MIN and MAX find extremes.",
+      "Check the join's key before trusting aggregate results."
+    ],
+    "query": "SELECT COUNT(*) AS number_of_orders,\\n       MIN(orderdate) AS first_order,\\n       MAX(orderdate) AS last_order\\nFROM orders;",
+    "challengeIds": [
+      "orders-per-customer",
+      "payment-totals"
+    ],
+    "concept": "Joining 3 payments and 4 orders for one customer produces 12 rows, not 7."
+  },
+  {
+    "id": "grouping",
+    "unit": "05",
+    "title": "Groups & HAVING",
+    "subtitle": "GROUP BY and group-level filters",
+    "category": "Aggregation",
+    "duration": 13,
+    "slideRange": "28–123",
+    "description": "GROUP BY changes one row's meaning from a detail record into an entire group.",
+    "bullets": [
+      "If the goal says 'for each customer/year/country', look for GROUP BY.",
+      "WHERE filters input rows before grouping. HAVING filters completed groups.",
+      "Non-aggregated SELECT columns generally need to be in GROUP BY."
+    ],
+    "query": "SELECT c.country, COUNT(*) AS customer_count\\nFROM customers c\\nGROUP BY c.country\\nHAVING COUNT(*) >= 2\\nORDER BY customer_count DESC, c.country;",
+    "challengeIds": [
+      "countries-count",
+      "large-order-subtotals"
+    ],
+    "concept": "WHERE answers 'which individual rows?'; HAVING answers 'which groups?'."
+  },
+  {
+    "id": "subqueries",
+    "unit": "06",
+    "title": "Queries Within Queries",
+    "subtitle": "Scalar, vector, and table subqueries",
+    "category": "Subqueries",
+    "duration": 15,
+    "slideRange": "28–123",
+    "description": "A subquery is classified by the shape of its result, not by its spelling.",
+    "bullets": [
+      "Scalar subquery: one value; can be compared using =, <, or >.",
+      "Vector subquery: one column, potentially many rows; useful with IN or NOT IN.",
+      "Table subquery: rows and columns, often inside FROM with an alias. EXISTS tests whether rows exist."
+    ],
+    "query": "SELECT productcode, productname\\nFROM products\\nWHERE productcode NOT IN (\\n  SELECT productcode FROM orderdetails\\n  WHERE quantityordered > 48\\n)\\nORDER BY productname;",
+    "challengeIds": [
+      "never-large-quantity",
+      "biggest-subtotal"
+    ],
+    "concept": "An exclusion condition often becomes easier by finding the disqualifying rows first."
+  },
+  {
+    "id": "debugging",
+    "unit": "07",
+    "title": "Debug the AI",
+    "subtitle": "Diagnose plausible but incorrect SQL",
+    "category": "Exam preparation",
+    "duration": 16,
+    "slideRange": "28–123",
+    "description": "Homework 8 asks you to reason about rows, keys, grouping, ties, and missing data without blindly executing SQL.",
+    "bullets": [
+      "A correct-looking output shape does not prove you selected the correct rows.",
+      "DISTINCT fixes duplicated output rows, not multiplied SUM values or wrong predicates.",
+      "ORDER BY extra tie-breaker columns changes which rows qualify for WITH TIES."
+    ],
+    "query": "SELECT o.ordernumber\\nFROM orders o\\nINNER JOIN orderdetails od USING (ordernumber)\\nWHERE od.quantityordered > 50\\nORDER BY o.ordernumber;",
+    "challengeIds": [
+      "debug-duplicate-orders",
+      "debug-payment-join",
+      "debug-max-ties"
+    ],
+    "concept": "Run the flawed query. Construct a counterexample. Repair the meaning—not just the formatting."
+  },
+  {
+    "id": "exam-review",
+    "unit": "08",
+    "title": "Exam 3 Challenge",
+    "subtitle": "Integrate every concept",
+    "category": "Exam preparation",
+    "duration": 20,
+    "slideRange": "28–123",
+    "description": "Practice across joins, aggregates, HAVING, subqueries, and logical execution order.",
+    "bullets": [
+      "Logical execution: FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → FETCH.",
+      "Inspect primary keys at every join and every subquery boundary.",
+      "Homework 8's five problem styles are reflected in the challenges. Use hints only after reasoning."
+    ],
+    "query": "SELECT c.customername, SUM(p.amount) AS total_payments\\nFROM customers c\\nJOIN payments p USING (customernumber)\\nGROUP BY c.customernumber, c.customername\\nORDER BY total_payments DESC;",
+    "challengeIds": [
+      "exclude-leading-country",
+      "never-large-quantity",
+      "payment-totals",
+      "biggest-subtotal"
+    ],
+    "concept": "Before writing code: identify required output columns, one-row meaning, and source table keys."
+  }
+]
