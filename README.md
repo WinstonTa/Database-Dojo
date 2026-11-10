@@ -21,7 +21,7 @@ npm run dev
 # Open the local Vite URL shown in your terminal
 ```
 
-Build: `npm run build`. Type check: `npm run typecheck`. Preview production build: `npm run preview`.
+Build: `npm run build`. Type check: `npm run typecheck`. Curriculum validation: `npm run validate`. Preview production build: `npm run preview`.
 
 ## Deploy to Vercel
 

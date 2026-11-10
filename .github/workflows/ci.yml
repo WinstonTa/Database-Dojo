@@ -1,0 +1,21 @@
+name: Database Dojo CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate curriculum and fixtures
+        run: npm run validate
+      - name: TypeScript check
+        run: npm run typecheck
+      - name: Build production app
+        run: npm run build
