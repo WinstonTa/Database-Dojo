@@ -63,12 +63,38 @@ INSERT INTO payments VALUES
 (102,'CHK-C','2023-12-02',300),(103,'CHK-D','2024-01-03',125),
 (105,'CHK-E','2024-03-01',900),(105,'CHK-F','2025-08-01',900),
 (106,'CHK-G','2024-05-02',380),(108,'CHK-H','2024-09-02',600),
-(110,'CHK-I','2025-04-02',250),(112,'CHK-J','2025-06-02',125);
+(110,'CHK-I','2025-04-02',900),(112,'CHK-J','2025-06-02',125);
+-- Additional lesson columns derived from the readable lecture topics.
+-- These values remain original illustrative data, not an official class export.
+ALTER TABLE customers ADD COLUMN state TEXT;
+ALTER TABLE customers ADD COLUMN creditlimit NUMERIC(10,2);
+UPDATE customers SET
+ state = CASE customernumber
+   WHEN 101 THEN 'CA' WHEN 102 THEN 'CA'
+   WHEN 103 THEN 'NY' WHEN 104 THEN 'NY'
+   ELSE NULL END,
+ creditlimit = CASE
+   WHEN customernumber IN (101,105,110) THEN 80000.00
+   WHEN customernumber IN (102,106,108) THEN 25000.00
+   ELSE 45000.00 END;
+ALTER TABLE products ADD COLUMN productline TEXT;
+ALTER TABLE products ADD COLUMN msrp NUMERIC(10,2);
+UPDATE products SET
+ productline = CASE WHEN productcode IN ('P05','P09') THEN 'Motorcycles'
+   WHEN productcode IN ('P01','P06') THEN 'Cars'
+   WHEN productcode = 'P03' THEN 'Trains'
+   WHEN productcode = 'P02' THEN 'Planes'
+   ELSE 'Other' END,
+ msrp = buyprice * CASE WHEN productcode IN ('P05','P09','P07') THEN 2.1 ELSE 1.6 END;
+INSERT INTO products (productcode,productname,buyprice,productline,msrp)
+VALUES ('P09','Touring Motorcycle',40.00,'Motorcycles',92.00);
+INSERT INTO orderdetails (ordernumber,productcode,quantityordered,priceeach)
+VALUES (1003,'P09',2,54.00);
 `;
 export const tables = [
- {name:'customers', key:'customernumber',desc:'12 customers, including customers with no orders',columns:['customernumber','customername','country']},
+ {name:'customers', key:'customernumber',desc:'12 customers, including customers with no orders',columns:['customernumber','customername','country','state','creditlimit']},
  {name:'orders',key:'ordernumber',desc:'10 orders across 2023–2025',columns:['ordernumber','orderdate','customernumber']},
- {name:'orderdetails',key:'ordernumber + productcode',desc:'18 line items: each row is one product in one order',columns:['ordernumber','productcode','quantityordered','priceeach']},
- {name:'products',key:'productcode',desc:'8 products, including products that were never ordered',columns:['productcode','productname','buyprice']},
+ {name:'orderdetails',key:'ordernumber + productcode',desc:'19 line items: each row is one product in one order',columns:['ordernumber','productcode','quantityordered','priceeach']},
+ {name:'products',key:'productcode',desc:'9 products, including products that were never ordered',columns:['productcode','productname','buyprice','productline','msrp']},
  {name:'payments',key:'customernumber + checknumber',desc:'10 payments, including a payment from a customer with no orders',columns:['customernumber','checknumber','paymentdate','amount']}
 ] as const;
