@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, ArrowRight, Award, BookOpen, Braces, Check, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, Code2, Copy, Database, GraduationCap, Layers, Lightbulb, ListChecks, Menu, Play, RotateCcw, Search, ShieldCheck, Sparkles, Table2, Terminal, Trophy, X, XCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Award, BookOpen, Braces, Check, CheckCircle2, ChevronRight, CircleHelp, Code2, Copy, Database, GraduationCap, Layers, Lightbulb, ListChecks, Menu, Play, RotateCcw, Search, ShieldCheck, Sparkles, Table2, Terminal, Trophy, X, XCircle } from 'lucide-react'
 import lessonsSource from './data/lessons.json'
 import challengesSource from './data/challenges.json'
 import { tables } from './data/database'
