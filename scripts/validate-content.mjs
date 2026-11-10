@@ -7,8 +7,8 @@ const db = fs.readFileSync('src/data/database.ts', 'utf8')
 const ids = new Set()
 const lessonIds = new Set()
 
-assert.equal(lessons.length, 8, 'Expected eight units')
-assert.ok(challenges.length >= 15, 'Expected at least 15 SQL challenges')
+assert.equal(lessons.length, 13, 'Expected thirteen lecture-aligned units')
+assert.ok(challenges.length >= 30, 'Expected at least 30 SQL challenges')
 
 for (const lesson of lessons) {
   assert.ok(!lessonIds.has(lesson.id), 'Duplicate lesson id: ' + lesson.id)
@@ -16,6 +16,8 @@ for (const lesson of lessons) {
   assert.match(lesson.query, /SELECT/i, 'Lesson must contain SQL: ' + lesson.id)
   assert.equal(lesson.slideRange, '28–123', 'Only the requested SQL slide range is primary')
   assert.ok(lesson.bullets.length >= 3, 'Lesson missing takeaways: ' + lesson.id)
+  assert.ok(lesson.sourceTopic && lesson.deepDive && lesson.extra, 'Lesson missing lecture enrichment: ' + lesson.id)
+  assert.match(lesson.deepDive.sql, /(SELECT|CREATE)/i, 'Missing guided SQL: ' + lesson.id)
 }
 for (const challenge of challenges) {
   assert.ok(!ids.has(challenge.id), 'Duplicate challenge id: ' + challenge.id)
@@ -33,4 +35,5 @@ for (const name of ['customers','orders','orderdetails','products','payments']) 
 }
 assert.match(db, /\(1001,'P01',60,50\),\(1001,'P02',60,40\)/, 'Duplicate qualifying line items test fixture')
 assert.match(db, /\(1002,'P01',100,50\),\s*\(1002,'P03',5,80\)/, 'Tied subtotal test fixture')
-console.log('Validated', lessons.length, 'lessons and', challenges.length, 'curated challenges')
+for(const topic of ['CREATE TABLE','ALTER TABLE customers ADD COLUMN state','ALTER TABLE products ADD COLUMN productline']) assert.ok(db.includes(topic), 'Missing expanded lecture fixture: '+topic)
+console.log('Validated', lessons.length, 'lecture-aligned lessons and', challenges.length, 'curated challenges')

@@ -4,9 +4,9 @@
 
 ## Features
 
-- Eight interactive, slide-style SQL lessons aligned with the course topics.
+- Thirteen interactive, slide-style SQL lessons aligned with the course topics.
 - In-browser PostgreSQL playground with live tabular results and schema explorer.
-- 15 curated, locally graded SQL challenges, including five Homework 8-inspired problem styles.
+- 30 curated, locally graded SQL challenges, including lecture-derived challenges and all five Homework 8 problem styles.
 - Hints, revealable reference queries, sample execution order, course/original source labels.
 - Completed challenge progress saved in `localStorage`. No accounts, API keys, or backend.
 - Responsive design with mobile navigation and a Vercel-ready static build.
@@ -32,13 +32,13 @@ Import **WinstonTa/Database-Dojo**, select **Vite**, build command `npm run buil
 Based on these course documents stored in TaskBoard's `tasks_cecs323_cheatsheet` folder: `lecture_slides_instructions.md`, `lectures_days17-20.md`, `review_guide.md` and `homework_08.md`.
 
 - **Curriculum scope:** Lecture PDF slides 28–123 (SQL section). Slides 1–27 are background-only; indexes after slide 123 are excluded.
-- **Verification limitation:** The original lecture PDF binary was identified in TaskBoard but could not be extracted via the GitHub connector, so explanations are currently based on the provided lecture schedule, review guide, and Homework 8 markdown. Exact slide-by-slide mapping awaits readable PDF extraction.
-- **Sample dataset:** The five Homework-like tables and ALL inserted data are author-created examples, **not** a copy of the official Homework database. Their columns and join relationships reflect those referenced by Homework 8, not a verified full course ER diagram.
+- **Verification limitation:** The course's `cecs323_module03_relational_databases.md` is now readable in TaskBoard. It contains extracted lecture text and OCR-style picture captions, but does not include actual image files or reliable per-slide numeric markers. We expanded the app around its SQL content—from SQL/DDL/DML through the last table-subquery topic. Slides 1–27 are supplemental only, and the indexes/later topics following slide 123 are excluded. Source headings are shown in each lesson rather than inventing precise slide references.
+- **Sample dataset:** The five Homework-like tables and ALL inserted data (including lecture-inspired state, creditlimit, productline and msrp fields) are author-created examples, **not** a copy of the official Homework database. Their columns and join relationships reflect those referenced by Homework 8, not a verified full course ER diagram.
 - **Exercises:** Homework-inspired tasks are labeled "Course-inspired"; the other examples are labeled "Original practice." All explanatory copy is paraphrased/original.
 
 ## Architecture
 
-- `src/data/lessons.json`: lessons, examples and checkpoints
+- `src/data/lessons.json`: 13 lecture-aligned lessons, guided explanation cards, and checkpoints
 - `src/data/challenges.json`: problems, hints, reference SQL
 - `src/data/database.ts`: SQL schema and original seed data
 - `src/lib/sql.ts`: singleton in-memory PostgreSQL database, query and result grading
