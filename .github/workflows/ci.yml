@@ -15,6 +15,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Validate curriculum and fixtures
         run: npm run validate
+      - name: Execute all PostgreSQL challenges and lecture SQL
+        run: npm run test:sql
       - name: TypeScript check
         run: npm run typecheck
       - name: Build production app
