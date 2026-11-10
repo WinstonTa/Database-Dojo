@@ -13,7 +13,7 @@
       "PostgreSQL folds unquoted identifiers to lowercase. The lesson's orderNumber and ordernumber refer to the same unquoted identifier.",
       "A projection can drop the key. DISTINCT removes duplicate output rows, not errors in your logic."
     ],
-    "query": "SELECT customernumber, customername, country\\nFROM customers\\nORDER BY customername;",
+    "query": "SELECT customernumber, customername, country\nFROM customers\nORDER BY customername;",
     "challengeIds": [
       "select-country",
       "distinct-countries",
@@ -43,7 +43,7 @@
       "ORDER BY specifies display order; SQL results have no guaranteed order without it.",
       "FETCH FIRST limits the final result, while WITH TIES includes rows equal on every ORDER BY expression."
     ],
-    "query": "SELECT ordernumber, orderdate\\nFROM orders\\nWHERE orderdate >= DATE '2024-01-01'\\nORDER BY orderdate DESC;",
+    "query": "SELECT ordernumber, orderdate\nFROM orders\nWHERE orderdate >= DATE '2024-01-01'\nORDER BY orderdate DESC;",
     "challengeIds": [
       "orders-2024",
       "countries-count",
@@ -102,7 +102,7 @@
       "An order joined to orderdetails produces one row per order line (ordernumber, productcode).",
       "Joining two independent one-to-many children can multiply rows; LEFT JOIN keeps unmatched left rows."
     ],
-    "query": "SELECT o.ordernumber, c.customername\\nFROM orders o\\nINNER JOIN customers c USING (customernumber)\\nORDER BY o.ordernumber;",
+    "query": "SELECT o.ordernumber, c.customername\nFROM orders o\nINNER JOIN customers c USING (customernumber)\nORDER BY o.ordernumber;",
     "challengeIds": [
       "order-customers",
       "never-ordered",
@@ -190,7 +190,7 @@
       "SUM and AVG aggregate numeric expressions; MIN and MAX find extremes.",
       "Check the join's key before trusting aggregate results."
     ],
-    "query": "SELECT COUNT(*) AS number_of_orders,\\n       MIN(orderdate) AS first_order,\\n       MAX(orderdate) AS last_order\\nFROM orders;",
+    "query": "SELECT COUNT(*) AS number_of_orders,\n       MIN(orderdate) AS first_order,\n       MAX(orderdate) AS last_order\nFROM orders;",
     "challengeIds": [
       "orders-per-customer",
       "payment-totals",
@@ -220,7 +220,7 @@
       "WHERE filters input rows before grouping. HAVING filters completed groups.",
       "Non-aggregated SELECT columns generally need to be in GROUP BY."
     ],
-    "query": "SELECT c.country, COUNT(*) AS customer_count\\nFROM customers c\\nGROUP BY c.country\\nHAVING COUNT(*) >= 2\\nORDER BY customer_count DESC, c.country;",
+    "query": "SELECT c.country, COUNT(*) AS customer_count\nFROM customers c\nGROUP BY c.country\nHAVING COUNT(*) >= 2\nORDER BY customer_count DESC, c.country;",
     "challengeIds": [
       "countries-count",
       "large-order-subtotals",
@@ -339,7 +339,7 @@
       "DISTINCT fixes duplicated output rows, not multiplied SUM values or wrong predicates.",
       "ORDER BY extra tie-breaker columns changes which rows qualify for WITH TIES."
     ],
-    "query": "SELECT o.ordernumber\\nFROM orders o\\nINNER JOIN orderdetails od USING (ordernumber)\\nWHERE od.quantityordered > 50\\nORDER BY o.ordernumber;",
+    "query": "SELECT o.ordernumber\nFROM orders o\nINNER JOIN orderdetails od USING (ordernumber)\nWHERE od.quantityordered > 50\nORDER BY o.ordernumber;",
     "challengeIds": [
       "debug-duplicate-orders",
       "debug-payment-join",
@@ -369,7 +369,7 @@
       "Inspect primary keys at every join and every subquery boundary.",
       "Homework 8's five problem styles are reflected in the challenges. Use hints only after reasoning."
     ],
-    "query": "SELECT c.customername, SUM(p.amount) AS total_payments\\nFROM customers c\\nJOIN payments p USING (customernumber)\\nGROUP BY c.customernumber, c.customername\\nORDER BY total_payments DESC;",
+    "query": "SELECT c.customername, SUM(p.amount) AS total_payments\nFROM customers c\nJOIN payments p USING (customernumber)\nGROUP BY c.customernumber, c.customername\nORDER BY total_payments DESC;",
     "challengeIds": [
       "exclude-leading-country",
       "never-large-quantity",
