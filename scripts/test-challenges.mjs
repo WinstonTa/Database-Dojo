@@ -42,13 +42,9 @@ for (const lesson of lessons) {
   } catch (error) {
     throw new Error('Lesson SQL failed: ' + lesson.id, { cause: error })
   }
-  // Guided demo SQL may mutate temporary tables. Rebuild a clean sandbox for each demo.
-  const isolated = new PGlite()
-  await isolated.waitReady
-  await isolated.exec(schemaSQL)
-  try { await isolated.exec(lesson.deepDive.sql) }
+  // All examples share one in-memory database; DML exercises use an isolated TEMP table.
+  try { await db.exec(lesson.deepDive.sql) }
   catch (error) { throw new Error('Lecture walkthrough SQL failed: ' + lesson.id, { cause: error }) }
-  finally { await isolated.close() }
 }
 await db.close()
 console.log('Executed all', challenges.length, 'reference challenges and', lessons.length * 2, 'lesson SQL examples successfully')
