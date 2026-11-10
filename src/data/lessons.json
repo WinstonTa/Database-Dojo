@@ -16,9 +16,18 @@
     "query": "SELECT customernumber, customername, country\\nFROM customers\\nORDER BY customername;",
     "challengeIds": [
       "select-country",
-      "distinct-countries"
+      "distinct-countries",
+      "computed-price"
     ],
-    "concept": "One row from customers is one customer. The primary key is customernumber."
+    "concept": "One row from customers is one customer. The primary key is customernumber.",
+    "sourceTopic": "SQL, DDL, and DML · SELECT query · Basic SELECT queries",
+    "deepDive": {
+      "title": "A query is an ordered set of decisions",
+      "question": "What do SELECT, FROM, WHERE, and ORDER BY each contribute?",
+      "resolution": "FROM identifies source rows; WHERE chooses matching rows; SELECT constructs the output columns; ORDER BY arranges the returned result.",
+      "sql": "SELECT customername, country\nFROM customers\nWHERE country = 'USA'\nORDER BY customername;"
+    },
+    "extra": "The lecture also demonstrates computed columns with aliases, casts, and text predicates. Unquoted PostgreSQL column names are case-insensitive by default."
   },
   {
     "id": "filter-order",
@@ -37,13 +46,51 @@
     "query": "SELECT ordernumber, orderdate\\nFROM orders\\nWHERE orderdate >= DATE '2024-01-01'\\nORDER BY orderdate DESC;",
     "challengeIds": [
       "orders-2024",
-      "countries-count"
+      "countries-count",
+      "creditlimit-usa"
     ],
-    "concept": "Think: FROM → WHERE → SELECT → ORDER BY → FETCH."
+    "concept": "Think: FROM → WHERE → SELECT → ORDER BY → FETCH.",
+    "sourceTopic": "Basic SELECT queries · predicates · aliases",
+    "deepDive": {
+      "title": "The predicate changes rows; the sort changes their order",
+      "question": "Does ORDER BY filter away any rows?",
+      "resolution": "No. WHERE determines which rows survive; ORDER BY only rearranges the result. Use an explicit date range for a calendar-year filter.",
+      "sql": "SELECT ordernumber, orderdate\nFROM orders\nWHERE orderdate >= DATE '2024-01-01'\n  AND orderdate < DATE '2025-01-01'\nORDER BY orderdate;"
+    },
+    "extra": "To inspect a future UPDATE/DELETE safely, use the same WHERE in a SELECT first."
+  },
+  {
+    "id": "data-manipulation",
+    "title": "CREATE & CRUD",
+    "subtitle": "DDL versus DML; safe INSERT, UPDATE, and DELETE",
+    "category": "Foundations",
+    "duration": 12,
+    "description": "Build tables with DDL, then use DML to create, read, update, and delete rows. WHERE is the safety boundary for targeted changes.",
+    "bullets": [
+      "CREATE TABLE defines column types, primary keys, and foreign key constraints.",
+      "INSERT creates rows; UPDATE changes matching rows; DELETE removes matching rows.",
+      "A missing WHERE on UPDATE or DELETE affects every row. Preview the predicate with SELECT first."
+    ],
+    "query": "SELECT customernumber, customername, creditlimit\nFROM customers\nWHERE creditlimit < 50000\nORDER BY customernumber;",
+    "challengeIds": [
+      "preview-update",
+      "preview-delete"
+    ],
+    "concept": "Before executing a destructive statement, run the same WHERE as a SELECT to verify exactly which rows it targets.",
+    "slideRange": "28–123",
+    "sourceTopic": "SQL, DDL, and DML · Baby's First Query · INSERT / UPDATE / DELETE",
+    "deepDive": {
+      "title": "A safe CRUD experiment",
+      "question": "How can you try CREATE, INSERT, UPDATE, and DELETE without harming the practice dataset?",
+      "resolution": "Create a temporary table, insert one row, modify that row using WHERE, read it back, and delete it. This experiment uses a separate TEMP table.",
+      "sql": "CREATE TEMP TABLE dojo_scratch (id INT PRIMARY KEY, note TEXT);\nINSERT INTO dojo_scratch VALUES (1, 'before');\nUPDATE dojo_scratch SET note = 'after' WHERE id = 1;\nSELECT * FROM dojo_scratch;\nDELETE FROM dojo_scratch WHERE id = 1;"
+    },
+    "extra": "The free playground runs arbitrary SQL locally; use Restore data to recreate the original sample tables.",
+    "unit": "03"
   },
   {
     "id": "joins",
-    "unit": "03",
+    "unit": "04",
     "title": "Build Joins",
     "subtitle": "INNER JOIN, LEFT JOIN, and keys",
     "category": "Joins",
@@ -58,13 +105,80 @@
     "query": "SELECT o.ordernumber, c.customername\\nFROM orders o\\nINNER JOIN customers c USING (customernumber)\\nORDER BY o.ordernumber;",
     "challengeIds": [
       "order-customers",
+      "never-ordered",
+      "join-with-on"
+    ],
+    "concept": "Key question: what real-world thing does one joined row represent?",
+    "sourceTopic": "The problem · Inner join variations · Multiple joins · Junction table joins",
+    "deepDive": {
+      "title": "USING versus ON",
+      "question": "What is the key after joining orders to customers?",
+      "resolution": "The ordernumber still identifies each joined row, because each order has one parent customer. ON permits differently named matching columns; USING merges an identically named join column in SELECT *.",
+      "sql": "SELECT o.ordernumber, c.customername\nFROM orders o\nINNER JOIN customers c\n  ON o.customernumber = c.customernumber\nORDER BY o.ordernumber;"
+    },
+    "extra": "Joining orders → orderdetails → products follows the association path through a junction table; its key becomes (ordernumber, productcode)."
+  },
+  {
+    "id": "outer-joins",
+    "title": "Unmatched Rows",
+    "subtitle": "LEFT JOIN, RIGHT JOIN, NULL and DISTINCT",
+    "category": "Joins",
+    "duration": 13,
+    "description": "INNER JOIN discards nonmatches; OUTER JOIN can retain rows even when no related record exists.",
+    "bullets": [
+      "LEFT JOIN preserves every row on the left, setting unmatched right-table columns to NULL.",
+      "WHERE child.primarykey IS NULL finds parents with no children.",
+      "DISTINCT removes duplicate projected rows but cannot fix selecting the wrong set of rows."
+    ],
+    "query": "SELECT c.customernumber, c.customername\nFROM customers c\nLEFT JOIN orders o USING (customernumber)\nWHERE o.ordernumber IS NULL\nORDER BY c.customernumber;",
+    "challengeIds": [
+      "customers-without-orders",
       "never-ordered"
     ],
-    "concept": "Key question: what real-world thing does one joined row represent?"
+    "concept": "A missing match is represented by NULLs, not by a special fake child row.",
+    "slideRange": "28–123",
+    "sourceTopic": "Duplicate output · SELECT DISTINCT · Discarding unmatched rows · OUTER JOIN",
+    "deepDive": {
+      "title": "The missing-child pattern",
+      "question": "Why does INNER JOIN exclude customers who never ordered?",
+      "resolution": "No matching order means there is no joined row. A LEFT JOIN preserves the customer and produces NULL for order columns. Checking the child key IS NULL identifies these customers.",
+      "sql": "SELECT c.customername\nFROM customers c LEFT JOIN orders o USING (customernumber)\nWHERE o.ordernumber IS NULL\nORDER BY c.customername;"
+    },
+    "extra": "LEFT, RIGHT, and FULL OUTER JOIN specify which unmatched source rows remain; NULL is the marker for the absent side.",
+    "unit": "05"
+  },
+  {
+    "id": "join-cardinality",
+    "title": "Join Row Anatomy",
+    "subtitle": "Keys, junction tables, and sibling joins",
+    "category": "Joins",
+    "duration": 15,
+    "description": "Joining two children through the same parent multiplies combinations. Analyze the intermediate key and row identity before aggregating.",
+    "bullets": [
+      "orders JOIN orderdetails JOIN products keeps orderdetails' composite key (ordernumber, productcode).",
+      "orders JOIN customers JOIN payments pairs each order with each payment from the same customer; it does not mean the payment paid that order.",
+      "For one customer with 3 orders and 2 payments, the sibling join has 3 × 2 = 6 rows."
+    ],
+    "query": "SELECT o.ordernumber, p.checknumber, p.amount\nFROM orders o\nJOIN customers c USING (customernumber)\nJOIN payments p USING (customernumber)\nWHERE c.customernumber = 101\nORDER BY o.ordernumber, p.checknumber;",
+    "challengeIds": [
+      "count-motorcycle-orders",
+      "debug-payment-join"
+    ],
+    "concept": "The key of the sibling join combines ordernumber with the payment key; counting rows counts order–payment pairs, not orders or payments.",
+    "slideRange": "28–123",
+    "sourceTopic": "Joined table schemas · Junction table joins · Joining to another child",
+    "deepDive": {
+      "title": "Orders × payments is not a receipt allocation",
+      "question": "A customer has two orders and two payments. Does their join have two rows?",
+      "resolution": "No. It has four order–payment combinations. You cannot infer which payment belongs to which order from shared customernumber alone.",
+      "sql": "SELECT o.ordernumber, p.checknumber\nFROM orders o\nJOIN payments p USING(customernumber)\nWHERE o.customernumber = 101\nORDER BY o.ordernumber, p.checknumber;"
+    },
+    "extra": "The cardinality depends on the distribution of rows per customer, not just the table totals. A join's primary key may become a combination of child keys.",
+    "unit": "06"
   },
   {
     "id": "aggregate",
-    "unit": "04",
+    "unit": "07",
     "title": "Count What Matters",
     "subtitle": "COUNT, SUM, AVG, MIN and MAX",
     "category": "Aggregation",
@@ -79,13 +193,22 @@
     "query": "SELECT COUNT(*) AS number_of_orders,\\n       MIN(orderdate) AS first_order,\\n       MAX(orderdate) AS last_order\\nFROM orders;",
     "challengeIds": [
       "orders-per-customer",
-      "payment-totals"
+      "payment-totals",
+      "count-motorcycle-orders"
     ],
-    "concept": "Joining 3 payments and 4 orders for one customer produces 12 rows, not 7."
+    "concept": "Joining 3 payments and 4 orders for one customer produces 12 rows, not 7.",
+    "sourceTopic": "Aggregate functions · Selecting columns with an aggregate",
+    "deepDive": {
+      "title": "Count orders, not motorcycle line items",
+      "question": "If one order contains two motorcycle products, is COUNT(*) correct?",
+      "resolution": "No. The three-way join yields one row per matching orderdetail. COUNT(DISTINCT ordernumber) counts qualifying orders once.",
+      "sql": "SELECT COUNT(DISTINCT od.ordernumber) AS motorcycle_orders\nFROM orders o\nJOIN orderdetails od USING(ordernumber)\nJOIN products p USING(productcode)\nWHERE p.productline = 'Motorcycles';"
+    },
+    "extra": "COUNT(*) counts matching rows, COUNT(column) ignores NULLs, and COUNT(DISTINCT column) counts different non-NULL values."
   },
   {
     "id": "grouping",
-    "unit": "05",
+    "unit": "08",
     "title": "Groups & HAVING",
     "subtitle": "GROUP BY and group-level filters",
     "category": "Aggregation",
@@ -100,34 +223,111 @@
     "query": "SELECT c.country, COUNT(*) AS customer_count\\nFROM customers c\\nGROUP BY c.country\\nHAVING COUNT(*) >= 2\\nORDER BY customer_count DESC, c.country;",
     "challengeIds": [
       "countries-count",
-      "large-order-subtotals"
+      "large-order-subtotals",
+      "motorcycle-order-total"
     ],
-    "concept": "WHERE answers 'which individual rows?'; HAVING answers 'which groups?'."
+    "concept": "WHERE answers 'which individual rows?'; HAVING answers 'which groups?'.",
+    "sourceTopic": "Grouping · Filtering based on aggregates · HAVING · Challenges",
+    "deepDive": {
+      "title": "A row total is not an order subtotal",
+      "question": "Why can't WHERE priceeach * quantityordered >= 1000 find orders worth at least 1000?",
+      "resolution": "WHERE tests one line item before grouping. HAVING tests the sum of all line items in an order after GROUP BY.",
+      "sql": "SELECT ordernumber, SUM(priceeach * quantityordered) AS subtotal\nFROM orderdetails\nGROUP BY ordernumber\nHAVING SUM(priceeach * quantityordered) >= 1000\nORDER BY ordernumber;"
+    },
+    "extra": "Watch boundary words: 'at least' means >= rather than >. Also LEFT JOIN + COUNT(*) gives 1 for a customer with no orders; COUNT(ordernumber) gives 0."
+  },
+  {
+    "id": "scalar-subqueries",
+    "title": "One Value at a Time",
+    "subtitle": "Scalar subqueries, unique keys, and ties",
+    "category": "Subqueries",
+    "duration": 15,
+    "description": "A scalar subquery stands in for one value. You must prove it returns at most one row, not merely observe that it does on today's data.",
+    "bullets": [
+      "Using a full primary or unique key can ensure a subquery returns at most one row.",
+      "An aggregate with no GROUP BY produces one scalar row, including for empty input.",
+      "A query for MAX(amount) is scalar, but the rows having that amount may be many. Use IN/EXISTS or a join to preserve ties."
+    ],
+    "query": "SELECT DISTINCT c.customernumber, c.customername\nFROM customers c\nJOIN payments p USING (customernumber)\nWHERE p.amount = (SELECT MAX(amount) FROM payments)\nORDER BY c.customernumber;",
+    "challengeIds": [
+      "largest-payment-customers",
+      "largest-payment-orders"
+    ],
+    "concept": "The maximum value is one number. The payments attaining that number are not necessarily one row.",
+    "slideRange": "28–123",
+    "sourceTopic": "Multi-question information needs · Scalar-value subqueries · Legal scalar subqueries",
+    "deepDive": {
+      "title": "Maximum payment, multiple winners",
+      "question": "Why might WHERE customernumber = (SELECT customernumber FROM payments WHERE amount = ...) fail?",
+      "resolution": "The inner MAX(amount) is one value, but multiple payments can match it. A subsequent customer lookup is a vector, so = can error. Join to payments and compare against the scalar MAX instead.",
+      "sql": "SELECT DISTINCT c.customernumber, c.customername\nFROM customers c JOIN payments p USING (customernumber)\nWHERE p.amount = (SELECT MAX(amount) FROM payments)\nORDER BY c.customernumber;"
+    },
+    "extra": "LIMIT/FETCH FIRST 1 ensures at most one row, but may discard legitimate ties; selecting a non-unique name cannot guarantee scalar cardinality.",
+    "unit": "09"
   },
   {
     "id": "subqueries",
-    "unit": "06",
-    "title": "Queries Within Queries",
-    "subtitle": "Scalar, vector, and table subqueries",
+    "unit": "10",
+    "title": "Vector Subqueries",
+    "subtitle": "IN, NOT IN, and the logic of exclusion",
     "category": "Subqueries",
     "duration": 15,
     "slideRange": "28–123",
-    "description": "A subquery is classified by the shape of its result, not by its spelling.",
+    "description": "Vector-valued subqueries return a column of potentially many values. They are ideal for set membership and exclusion.",
     "bullets": [
-      "Scalar subquery: one value; can be compared using =, <, or >.",
-      "Vector subquery: one column, potentially many rows; useful with IN or NOT IN.",
-      "Table subquery: rows and columns, often inside FROM with an alias. EXISTS tests whether rows exist."
+      "Use IN to keep outer rows whose key is in a one-column subquery result.",
+      "Use NOT IN or NOT EXISTS to keep rows outside the forbidden set, including those with no related child.",
+      "Finding a single instance that does not match a condition does not prove an entity never matched it."
     ],
-    "query": "SELECT productcode, productname\\nFROM products\\nWHERE productcode NOT IN (\\n  SELECT productcode FROM orderdetails\\n  WHERE quantityordered > 48\\n)\\nORDER BY productname;",
+    "query": "SELECT c.customernumber, c.customername\nFROM customers c\nWHERE c.customernumber NOT IN (\n  SELECT o.customernumber FROM orders o\n  WHERE o.orderdate >= DATE '2024-01-01'\n    AND o.orderdate < DATE '2025-01-01'\n)\nORDER BY c.customernumber;",
     "challengeIds": [
-      "never-large-quantity",
-      "biggest-subtotal"
+      "customers-without-2024-orders",
+      "states-with-multiple-customers",
+      "never-large-quantity"
     ],
-    "concept": "An exclusion condition often becomes easier by finding the disqualifying rows first."
+    "concept": "An exclusion condition often becomes easier by finding the disqualifying rows first.",
+    "sourceTopic": "Vector-valued subqueries · NOT IN · January ordering counterexample",
+    "deepDive": {
+      "title": "One nonmatching order is not proof of never",
+      "question": "Can finding a customer's non-2024 order prove they placed no orders in 2024?",
+      "resolution": "No. That customer could also have a 2024 order. Collect customers who DID place a 2024 order and exclude that set with NOT IN (or NOT EXISTS).",
+      "sql": "SELECT c.customernumber, c.customername\nFROM customers c\nWHERE c.customernumber NOT IN (\n  SELECT o.customernumber FROM orders o\n  WHERE o.orderdate >= DATE '2024-01-01'\n    AND o.orderdate < DATE '2025-01-01'\n)\nORDER BY c.customernumber;"
+    },
+    "extra": "NOT IN is safe here because orders.customernumber is NOT NULL. If a subquery can return NULL, NOT EXISTS may be more reliable."
+  },
+  {
+    "id": "table-subqueries",
+    "title": "Derived Tables",
+    "subtitle": "Subqueries in FROM and two-stage aggregates",
+    "category": "Subqueries",
+    "duration": 15,
+    "description": "A table subquery creates an intermediate relation with an explicit set of columns. The outer query can filter or aggregate those computed values.",
+    "bullets": [
+      "A subquery in FROM requires an alias and exposes only the columns it selects.",
+      "To find average order subtotal, group line items into one row per order before AVG.",
+      "Counting customers by year requires COUNT(DISTINCT customernumber), not COUNT(*) of order rows."
+    ],
+    "query": "SELECT AVG(subtotal) AS avg_order_subtotal\nFROM (\n  SELECT ordernumber, SUM(priceeach * quantityordered) AS subtotal\n  FROM orderdetails\n  GROUP BY ordernumber\n) AS order_subtotals;",
+    "challengeIds": [
+      "yearly-unique-customers",
+      "average-order-subtotal",
+      "markup-derived-table"
+    ],
+    "concept": "The intermediate derived table has its own schema and row meaning; only its selected columns exist for the outer query.",
+    "slideRange": "28–123",
+    "sourceTopic": "Table-valued subqueries · markup · order years · average order subtotal",
+    "deepDive": {
+      "title": "Why aggregate twice?",
+      "question": "Why is AVG(quantityordered * priceeach) not average ORDER subtotal?",
+      "resolution": "The first averages orderdetail line totals. You must first SUM line totals per order, then AVG those per-order subtotals in the outer SELECT.",
+      "sql": "SELECT AVG(order_subtotal) AS average_subtotal\nFROM (\n  SELECT ordernumber, SUM(quantityordered * priceeach) AS order_subtotal\n  FROM orderdetails GROUP BY ordernumber\n) AS totals;"
+    },
+    "extra": "Table subqueries are not magically materialized permanent tables. The outer SELECT sees only their projected columns and derived rows.",
+    "unit": "11"
   },
   {
     "id": "debugging",
-    "unit": "07",
+    "unit": "12",
     "title": "Debug the AI",
     "subtitle": "Diagnose plausible but incorrect SQL",
     "category": "Exam preparation",
@@ -145,11 +345,19 @@
       "debug-payment-join",
       "debug-max-ties"
     ],
-    "concept": "Run the flawed query. Construct a counterexample. Repair the meaning—not just the formatting."
+    "concept": "Run the flawed query. Construct a counterexample. Repair the meaning—not just the formatting.",
+    "sourceTopic": "Aggregate challenges · SELECT DISTINCT · Joining to another child · scalar/vector safety",
+    "deepDive": {
+      "title": "A correctly shaped answer can still be wrong",
+      "question": "Can a single row per customer prove SUM is correct?",
+      "resolution": "No. Grouping hides duplicated intermediate payment rows. Check the joined row key, remove unnecessary sibling joins, then sum the true payment rows.",
+      "sql": "SELECT c.customernumber, c.customername, SUM(p.amount) AS total_payments\nFROM customers c JOIN payments p USING(customernumber)\nGROUP BY c.customernumber, c.customername\nORDER BY c.customername;"
+    },
+    "extra": "Use the homework's counterexample habit: identify what one row means, what the key is, and find legal data where the AI query breaks."
   },
   {
     "id": "exam-review",
-    "unit": "08",
+    "unit": "13",
     "title": "Exam 3 Challenge",
     "subtitle": "Integrate every concept",
     "category": "Exam preparation",
@@ -166,8 +374,17 @@
       "exclude-leading-country",
       "never-large-quantity",
       "payment-totals",
-      "biggest-subtotal"
+      "biggest-subtotal",
+      "average-order-subtotal"
     ],
-    "concept": "Before writing code: identify required output columns, one-row meaning, and source table keys."
+    "concept": "Before writing code: identify required output columns, one-row meaning, and source table keys.",
+    "sourceTopic": "SELECT · joins · aggregates · GROUP BY / HAVING · scalar/vector/table subqueries",
+    "deepDive": {
+      "title": "Solve in execution order",
+      "question": "Why does WHERE SUM(amount) > 100 fail?",
+      "resolution": "WHERE runs before GROUP BY and aggregates. Use HAVING after groups are formed, or compute the sum in a subquery and test the output in the outer WHERE.",
+      "sql": "SELECT customernumber, SUM(amount) AS total_paid\nFROM payments\nGROUP BY customernumber\nHAVING SUM(amount) > 1000\nORDER BY customernumber;"
+    },
+    "extra": "Exam 3 focuses on the Homework database and the shape of joins, groups, and subqueries. Indexes and later topics are deliberately omitted."
   }
 ]
